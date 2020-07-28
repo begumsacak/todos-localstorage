@@ -3,41 +3,50 @@ var todoForm = document.querySelector("#todo-form");
 var todoList = document.querySelector("#todo-list");
 var todoCountSpan = document.querySelector("#todo-count");
 
-var todos = ["Learn HTML", "Learn CSS", "Learn JavaScript"];
+var todos = JSON.parse(localStorage.getItem('todos')) || [];
 
-renderTodos();
+function updatelocal() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+function removeTodo() {
+  var todoIndex = parseInt(event.target.parentElement.getAttribute("data-index"));
+  todos.splice(todoIndex, 1)
+  updatelocal()
+  renderTodos()
+}
 
 function renderTodos() {
-  // Clear todoList element and update todoCountSpan
   todoList.innerHTML = "";
   todoCountSpan.textContent = todos.length;
 
-  // Render a new li for each todo
   for (var i = 0; i < todos.length; i++) {
-    var todo = todos[i];
+    var li = document.createElement("li")
 
-    var li = document.createElement("li");
-    li.textContent = todo;
+    li.innerText = todos[i];
+    li.setAttribute("data-index", i);
+
+    var button = document.createElement('button');
+    button.textContent = "Complete"
+    li.appendChild(button)
+
     todoList.appendChild(li);
+
+    button.addEventListener('click', removeTodo());
   }
 }
 
-// When form is submitted...
-todoForm.addEventListener("submit", function(event) {
+renderTodos()
+
+todoForm.addEventListener("submit", function (event) {
   event.preventDefault();
-
-  var todoText = todoInput.value.trim();
-
-  // Return from function early if submitted todoText is blank
-  if (todoText === "") {
+  var newTodoText = todoInput.value
+  if (newTodoText === "") {
     return;
   }
 
-  // Add new todoText to todos array, clear the input
-  todos.push(todoText);
+  todos.push(newTodoText)
+  updatelocal()
   todoInput.value = "";
-
-  // Re-render the list
-  renderTodos();
+  renderTodos()
 });
-
